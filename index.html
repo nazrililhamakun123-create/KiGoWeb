@@ -427,6 +427,7 @@ body.kamar-on #kmrUI{ display:block; }
 #kmrSwing{ right:max(18px, env(safe-area-inset-right)); bottom:max(22px, env(safe-area-inset-bottom)); width:104px; height:104px; padding:0; border-radius:50%; font-size:1rem; flex-direction:column; gap:3px; --edge:#8f2450; --lift:6px; color:#fff; text-shadow:0 2px 0 rgba(122,20,62,.65); background:radial-gradient(circle at 50% 26%,#ff9cc2 0%,#f0699d 48%,#c93d75 100%); border:3px solid #fff2f7; box-shadow:inset 0 3px 0 rgba(255,255,255,.5), inset 0 -8px 12px rgba(122,20,62,.45), 0 var(--lift) 0 var(--edge), 0 calc(var(--lift) + 6px) 22px rgba(0,0,0,.4); }
 #kmrLie{ right:calc(max(18px, env(safe-area-inset-right)) + 122px); bottom:calc(max(22px, env(safe-area-inset-bottom)) + 30px); font-size:.9rem; }
 #kmrAct{ left:0; right:0; margin-left:auto; margin-right:auto; width:max-content; max-width:calc(100vw - 24px); box-sizing:border-box; bottom:calc(max(22px, env(safe-area-inset-bottom)) + 196px); font-size:.9rem; --edge:#6b4a10; color:#2a1a02; text-shadow:0 1px 0 rgba(255,255,255,.45); background:linear-gradient(180deg,#f8d070 0%,#e4a634 55%,#c28822 100%); border-color:#fff1c8; }
+#ringWaitHud{position:fixed;z-index:99999;top:calc(max(12px,env(safe-area-inset-top)) + 12px);left:50%;transform:translateX(-50%);width:max-content;max-width:calc(100vw - 28px);box-sizing:border-box;display:none;align-items:center;gap:10px;padding:12px 14px;border:1px solid rgba(255,255,255,.28);border-radius:14px;background:rgba(14,14,18,.96);color:#fff;font:700 14px/1.35 system-ui,sans-serif;box-shadow:0 8px 30px #0008;pointer-events:auto}#ringWaitHud.active{display:flex}#ringWaitText{white-space:normal}#ringWaitCancel{border:0;border-radius:9px;padding:8px 10px;background:#d94141;color:#fff;font-weight:800;cursor:pointer;flex-shrink:0}.ring-wait-dot{width:9px;height:9px;border-radius:50%;background:#ffc44d;box-shadow:0 0 0 4px #ffc44d22;animation:ringPulse 1s infinite alternate;flex-shrink:0}@keyframes ringPulse{to{opacity:.35;transform:scale(.75)}}
 #kmrToast{ position:absolute; left:50%; bottom:calc(max(22px, env(safe-area-inset-bottom)) + 252px); transform:translateX(-50%) translateY(8px); max-width:min(86vw,420px); box-sizing:border-box; background:rgba(0,0,0,.74); color:#f4e9d8; padding:9px 14px; border-radius:12px; font-size:.8rem; font-weight:700; line-height:1.35; text-align:center; opacity:0; transition:opacity .25s, transform .25s; pointer-events:none; }
 #kmrToast.on{ opacity:1; transform:translateX(-50%); }
 #kmrJoy{ position:absolute; left:max(22px, env(safe-area-inset-left)); bottom:max(26px, env(safe-area-inset-bottom)); width:120px; height:120px; border-radius:50%; background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Cg fill='%23f4e9d8' fill-opacity='.65'%3E%3Cpath d='M60 9l7 10H53z'/%3E%3Cpath d='M60 111l7-10H53z'/%3E%3Cpath d='M9 60l10-7v14z'/%3E%3Cpath d='M111 60l-10-7v14z'/%3E%3C/g%3E%3Ccircle cx='60' cy='60' r='36' fill='none' stroke='%23f4e9d8' stroke-opacity='.2' stroke-width='2'/%3E%3C/svg%3E") center/100% 100% no-repeat, radial-gradient(circle,rgba(20,16,20,.22) 0%,rgba(20,16,20,.5) 100%); border:2px solid rgba(244,233,216,.6); box-shadow:inset 0 3px 10px rgba(0,0,0,.5), inset 0 0 0 6px rgba(244,233,216,.07), 0 4px 0 rgba(0,0,0,.28), 0 8px 14px rgba(0,0,0,.3); }
@@ -775,6 +776,7 @@ body.kamar-on .r-name{ display:block; }
     <button class="kmr-btn" id="kmrLie" type="button" style="display:none">REBAHAN</button>
     <button class="kmr-btn" id="kmrSwing" type="button">AYUN</button>
     <button class="kmr-btn" id="kmrAct" type="button" style="display:none"></button>
+    <div id="ringWaitHud" role="status" aria-live="polite" aria-atomic="true"><span class="ring-wait-dot"></span><span id="ringWaitText">Mencari lawan ring… 0 dtk</span><button id="ringWaitCancel" type="button">BATAL</button></div>
     <div id="kmrToast" role="status" aria-live="polite"></div>
     <button class="kmr-btn" id="kmrEmote" type="button" aria-label="Emote" title="Emote"></button>
     <button class="kmr-btn" id="kmrStyle" type="button" aria-label="Skin" title="Skin"></button>
@@ -2261,6 +2263,7 @@ body.kamar-on .r-name{ display:block; }
       const kBtn = $k('kamarBtn'), kLie = $k('kmrLie'), kSwing = $k('kmrSwing'), kExit = $k('kmrExit'),
             kLook = $k('kmrLook'), kJoy = $k('kmrJoy'), kKnob = $k('kmrKnob'), kRoom = $k('kmrRoom'),
             kDlg = $k('kmrDialog'), kName = $k('kmrName'), kCode = $k('kmrCode'), kMsg = $k('kmrMsg'),
+            ringWaitHud = $k('ringWaitHud'), ringWaitText = $k('ringWaitText'), ringWaitCancel = $k('ringWaitCancel'),
             kSolo = $k('kmrSolo'), kCreate = $k('kmrCreate'), kMatch = $k('kmrMatch'), kMatchQuick = $k('kmrMatchQuick'),
             kJoinBtn = $k('kmrJoinBtn'), kCancel = $k('kmrCancel'), kEmote = $k('kmrEmote'), kCam = $k('kmrCam'),
             kStyle = $k('kmrStyle'), kStyleBox = $k('kmrStyleBox'), kStDone = $k('stDone');
@@ -3969,7 +3972,8 @@ body.kamar-on .r-name{ display:block; }
         begin(ref, code);
       }
       // ===== MATCHMAKING RING: antre otomatis melalui Firebase, lalu masuk ke room kamar yang sama =====
-      let ringQueueRef = null, ringQueueListener = null, ringQueueActive = false, ringQueueBusy = false;
+      let ringQueueRef = null, ringQueueListener = null, ringQueueActive = false, ringQueueBusy = false, ringWaitTimer = null, ringWaitStarted = 0;
+      function stopRingWaitTimer(){ if(ringWaitTimer){ clearInterval(ringWaitTimer); ringWaitTimer = null; } if(ringWaitHud) ringWaitHud.classList.remove('active'); }
       const ringQueueRoot = () => db.ref('ringMatchmaking/queue');
       function resetMatchButton(){
         const label = ringQueueActive ? 'BATAL CARI LAWAN' : '⚔ CARI LAWAN RING';
@@ -3983,7 +3987,7 @@ body.kamar-on .r-name{ display:block; }
           try{ await ref.onDisconnect().cancel(); }catch(e){}
           try{ await ref.remove(); }catch(e){}
         }
-        ringQueueRef = null; ringQueueListener = null; ringQueueActive = false;
+        ringQueueRef = null; ringQueueListener = null; ringQueueActive = false; stopRingWaitTimer();
         resetMatchButton();
         if(kMsg) say('Pencarian lawan dibatalkan.');
         if(on) toast('Pencarian lawan dibatalkan.', 2200);
@@ -4011,37 +4015,39 @@ body.kamar-on .r-name{ display:block; }
         ringQueueBusy = true;
         try{
           myName = getName();
-          // Jika belum berada di room, cari antrean yang sudah menunggu terlebih dahulu.
-          if(!net){
-            const snap = await ringQueueRoot().once('value');
-            const queue = snap.val() || {};
-            const candidates = Object.entries(queue)
-              .filter(([id, q]) => id !== pid && q && q.status === 'waiting' && /^[A-Z]{4}$/.test(q.code || ''))
-              .sort((a, b) => (a[1].createdAt || 0) - (b[1].createdAt || 0));
-            for(const [id, q] of candidates){
-              const roomSnap = await db.ref('rooms/' + q.code).once('value');
-              const roomData = roomSnap.val();
-              if(!roomData || roomData.state !== 'kamar' || Object.keys(roomData.players || {}).length >= MAX_PLAYERS){
-                if(!roomData) db.ref('ringMatchmaking/queue/' + id).remove().catch(() => {});
-                continue;
-              }
-              const claim = await db.ref('ringMatchmaking/queue/' + id).transaction(current => {
-                if(!current || current.status !== 'waiting') return;
-                return Object.assign({}, current, { status:'matched', matchedBy:pid, matchedName:myName, matchedAt:serverNow() });
-              });
-              if(!claim.committed) continue;
-              kCode.value = q.code;
-              await joinRoom();
-              if(net){
-                // The joining player is the second half of the match; teleport them
-                // to the same ring location as the player who was already waiting.
-                teleportPlayersToRing();
-                toast('Lawan ditemukan! Menuju ring di depan apartemen.', 4200);
-              }
-              return;
+          say('Mencari lawan ring…');
+          // Search the global queue regardless of which world/room the player is in.
+          // The waiting player's room becomes the shared destination for both players.
+          const snap = await ringQueueRoot().once('value');
+          const queue = snap.val() || {};
+          const candidates = Object.entries(queue)
+            .filter(([id, q]) => id !== pid && q && q.status === 'waiting' && /^[A-Z]{4}$/.test(q.code || '') && (Date.now() - (q.createdAt || 0) < 120000))
+            .sort((a, b) => (a[1].createdAt || 0) - (b[1].createdAt || 0));
+          for(const [id, q] of candidates){
+            const roomRef = db.ref('rooms/' + q.code);
+            const roomSnap = await roomRef.once('value');
+            const roomData = roomSnap.val();
+            if(!roomData || roomData.state !== 'kamar' || Object.keys(roomData.players || {}).length >= MAX_PLAYERS){
+              if(!roomData) db.ref('ringMatchmaking/queue/' + id).remove().catch(() => {});
+              continue;
             }
+            // Atomically claim the waiting player so two joiners cannot take the same match.
+            const claim = await db.ref('ringMatchmaking/queue/' + id).transaction(current => {
+              if(!current || current.status !== 'waiting') return;
+              return Object.assign({}, current, { status:'matched', matchedBy:pid, matchedName:myName, matchedAt:serverNow(), opponentPid:pid });
+            });
+            if(!claim.committed) continue;
+            if(net) leaveNet();
+            kCode.value = q.code;
+            await joinRoom();
+            if(net){
+              teleportPlayersToRing();
+              toast('Lawan ditemukan! Menuju ring di depan apartemen.', 4200);
+            }
+            return;
           }
-          // Jika tidak ada lawan, siapkan room kamar baru (atau gunakan room yang sedang ditempati) dan antrekan.
+          // No opponent found: preserve the current room, or create a temporary room
+          // so the next player can join even if they started from another world.
           if(!net){
             let created = false;
             for(let i = 0; i < 5; i++){
@@ -4058,8 +4064,10 @@ body.kamar-on .r-name{ display:block; }
           await ringQueueRef.set({ pid, name:myName, code:net.code, status:'waiting', createdAt:serverNow() });
           await ringQueueRef.onDisconnect().remove();
           ringQueueActive = true;
+          ringWaitStarted = Date.now(); stopRingWaitTimer();
+          const updateRingWait = () => { if(!ringQueueActive) return; const elapsed = Math.floor((Date.now() - ringWaitStarted) / 1000); const label = 'Mencari lawan ring… ' + elapsed + ' dtk'; if(kMsg) say(label + '. Kamu bisa membatalkan pencarian kapan saja.'); if(ringWaitText) ringWaitText.textContent = label + ' — menunggu pemain lain'; if(ringWaitHud) ringWaitHud.classList.add('active'); };
+          updateRingWait(); ringWaitTimer = setInterval(updateRingWait, 1000);
           resetMatchButton();
-          say('Mencari lawan ring… tetap online. Kamu bisa membatalkan pencarian kapan saja.');
           if(on) toast('Mencari lawan ring…', 3000);
           ringQueueListener = ringQueueRef.on('value', snap => {
             const q = snap.val();
@@ -4068,13 +4076,10 @@ body.kamar-on .r-name{ display:block; }
             if(ref && listener) ref.off('value', listener);
             ref.onDisconnect().cancel().catch(() => {});
             ref.remove().catch(() => {});
-            ringQueueRef = null; ringQueueListener = null; ringQueueActive = false;
+            ringQueueRef = null; ringQueueListener = null; ringQueueActive = false; stopRingWaitTimer();
             resetMatchButton();
             say('Lawan ditemukan! Dipindahkan ke ring di depan apartemen.');
-            if(on){
-              teleportPlayersToRing();
-              toast('Lawan ditemukan! Menuju ring di depan apartemen.', 4200);
-            }
+            if(on){ teleportPlayersToRing(); toast('Lawan ditemukan! Menuju ring di depan apartemen.', 4200); }
           });
         }catch(e){
           console.error('Ring matchmaking:', e);
@@ -4217,6 +4222,7 @@ body.kamar-on .r-name{ display:block; }
       kCancel.addEventListener('click', () => kDlg.classList.remove('open'));
       kCreate.addEventListener('click', safe(createRoom));
       kJoinBtn.addEventListener('click', safe(joinRoom));
+      if(ringWaitCancel) ringWaitCancel.addEventListener('click', stopRingQueue);
       kMatch.addEventListener('click', startRingMatchmaking);
       kMatchQuick.addEventListener('click', startRingMatchmaking);
       // DIH WORLD directly launches the original KAMAR apartment world.
